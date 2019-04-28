@@ -49,6 +49,8 @@ struct Cloth {
 
   void buildGrid();
 
+  double distance3D(double x1, double y1, double z1, double x2, double y2, double z2);
+
   void simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                 vector<Vector3D> external_accelerations,
                 vector<CollisionObject *> *collision_objects);
@@ -70,6 +72,7 @@ struct Cloth {
 
   // Cloth components
   vector<PointMass> point_masses;
+  vector<PointMass> wind_masses;
   vector<vector<int>> pinned;
   vector<Spring> springs;
   ClothMesh *clothMesh;
