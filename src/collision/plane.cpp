@@ -17,7 +17,7 @@ void Plane::collide(PointMass &pm) {
 }
 
 void Plane::render(GLShader &shader) {
-  nanogui::Color color(0.7f, 0.7f, 0.7f, 1.0f);
+  nanogui::Color color(0.1f, 0.7f, 0.7f, 1.0f);
 
   Vector3f sPoint(point.x, point.y, point.z);
   Vector3f sNormal(normal.x, normal.y, normal.z);
