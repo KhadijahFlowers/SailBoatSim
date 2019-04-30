@@ -44,7 +44,7 @@ SphereMesh::SphereMesh(int num_lat, int num_lon)
       // Simple patch to rotate the sphere so by default
       // the seam is facing away from the camera
       lon += 0.5;
-      if (lon >= 1.0) {
+      if (lon >= 1.0) { //UPDATE
         lon -= 1.0;
       }
 
@@ -129,17 +129,17 @@ void SphereMesh::build_data() {
     positions.col(i + 1) << p2.x, p2.y, p2.z, 1.0;
     positions.col(i + 2) << p3.x, p3.y, p3.z, 1.0;
 
-    normals.col(i    ) << n1.x, n1.y, n1.z, 0.0;
-    normals.col(i + 1) << n2.x, n2.y, n2.z, 0.0;
-    normals.col(i + 2) << n3.x, n3.y, n3.z, 0.0;
+    //normals.col(i    ) << n1.x, n1.y, n1.z, 0.0;
+    //normals.col(i + 1) << n2.x, n2.y, n2.z, 0.0;
+    //normals.col(i + 2) << n3.x, n3.y, n3.z, 0.0;
     
     uvs.col(i    ) << uv1.x, uv1.y;
     uvs.col(i + 1) << uv2.x, uv2.y;
     uvs.col(i + 2) << uv3.x, uv3.y;
     
-    tangents.col(i    ) << t1.x, t1.y, t1.z, 0.0;
-    tangents.col(i + 1) << t2.x, t2.y, t2.z, 0.0;
-    tangents.col(i + 2) << t3.x, t3.y, t3.z, 0.0;
+    //tangents.col(i    ) << t1.x, t1.y, t1.z, 0.0;
+    //tangents.col(i + 1) << t2.x, t2.y, t2.z, 0.0;
+    //tangents.col(i + 2) << t3.x, t3.y, t3.z, 0.0;
   }
 }
 
