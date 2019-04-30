@@ -2,7 +2,9 @@
   "plane": {
     "point": [0, 0, 0],
     "normal": [0, 1, 0],
-    "friction": 0.5
+    "friction": 0.5,
+    "width" : 10
+
   },
   "cloth": {
     "damping": 0.2,
@@ -14,8 +16,8 @@
     "orientation": 0,
     "width": 1,
     "height": 1,
-    "num_width_points": 50,
-    "num_height_points": 50,
+    "num_width_points": 10,
+    "num_height_points": 10,
     "thickness": 0.0095
   }
 }

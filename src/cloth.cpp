@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <math.h>
 #include <random>
 #include <vector>
@@ -9,26 +9,25 @@
 
 using namespace std;
 
-
 Cloth::Cloth(double width, double height, int num_width_points,
-	int num_height_points, float thickness) {
-	this->width = width;
-	this->height = height;
-	this->num_width_points = num_width_points;
-	this->num_height_points = num_height_points;
-	this->thickness = thickness;
+             int num_height_points, float thickness) {
+  this->width = width;
+  this->height = height;
+  this->num_width_points = num_width_points;
+  this->num_height_points = num_height_points;
+  this->thickness = thickness;
 
-	buildGrid();
-	buildClothMesh();
+  buildGrid();
+  buildClothMesh();
 }
 
 Cloth::~Cloth() {
-	point_masses.clear();
-	springs.clear();
+  point_masses.clear();
+  springs.clear();
 
-	if (clothMesh) {
-		delete clothMesh;
-	}
+  if (clothMesh) {
+    delete clothMesh;
+  }
 }
 
 //PART 1
@@ -43,8 +42,20 @@ void Cloth::buildGrid() {
 
 
 	for (int x = 0; x < num_width_points; x++) {
-		for (int z = 0; z < num_height_points; z++) {
-			Vector3D pos = Vector3D(x * width / num_width_points, z * height / num_height_points, 1);
+		for (int y = 0; y < num_height_points; y++) {
+			///
+			float pn = rand();
+			float pnq;
+			if (pn <= RAND_MAX / 2) {
+				pnq = 1.f;
+			}
+			else {
+				pnq = -1.f;
+			}
+			float z = pnq * rand() / RAND_MAX / 1000.f;
+			///
+
+			Vector3D pos = Vector3D(x * width / num_width_points, y * height / num_height_points + 1, z);
 			PointMass newGuy = PointMass(pos, false);
 			point_masses.push_back(newGuy);
 
@@ -52,28 +63,26 @@ void Cloth::buildGrid() {
 	}
 
 
+	//within pinned? Always pinned for now
 
-	//within pinned?
-	/*if (orientation == VERTICAL) {
-		for (int j = 0; j < point_masses.size(); j++) {
-			PointMass pm = point_masses.at(j);
-			for (int i = 0; i < pinned.size(); i++) {
-				if ((pm.position.x * num_width_points / width) == pinned.at(i).at(0) && (pm.position.y * num_height_points / height) == pinned.at(i).at(1)) {
-					point_masses.at(j).pinned = true;
-				}
+
+
+	for (int j = 0; j < point_masses.size(); j++) {
+		PointMass pm = point_masses.at(j);
+		for (int i = 0; i < point_masses.size(); i++) {
+
+			if (j % num_width_points == 0 && i % num_height_points == 0 || (j + 1) % num_width_points == 0 && (i + 1) % num_height_points
+				|| j % num_width_points == 0 && (i + 1) % num_height_points || i % num_height_points == 0 && (j + 1) % num_width_points == 0) {
+				point_masses.at(j).pinned = true;
 			}
+
+
+			/*if ((pm.position.x * num_width_points / width) == pinned.at(i).at(0) && (pm.position.y * num_height_points / height) == pinned.at(i).at(1)) {
+				point_masses.at(j).pinned = true;
+			}*/
 		}
 	}
-	else {
-		for (int j = 0; j < point_masses.size(); j++) {
-			PointMass pm = point_masses.at(j);
-			for (int i = 0; i < pinned.size(); i++) {
-				if ((pm.position.x * num_width_points / width) == pinned.at(i).at(0) && (pm.position.z * num_height_points / height) == pinned.at(i).at(1)) {
-					point_masses.at(j).pinned = true;
-				}
-			}
-		}
-	}*/
+
 
 	//structural loop
 	for (int pm = 0; pm < point_masses.size(); pm++) {
@@ -92,7 +101,7 @@ void Cloth::buildGrid() {
 			springs.emplace_back(Spring(&point_masses.at(pm), &point_masses.at(num_width_points * topRow + topCol), STRUCTURAL));
 		}
 	}
-
+	
 	//shear loop
 	for (int pm = 0; pm < point_masses.size(); pm++) {
 		int topLeftRow, topLeftCol, topRightRow, topRightCol, row, col;
@@ -133,7 +142,7 @@ void Cloth::buildGrid() {
 
 
 double Cloth::distance3D(double x1, double y1, double z1, double x2, double y2, double z2) {
-	return (double)sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2) + pow((z1 - z2), 2));
+	return (double) sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2) + pow((z1 - z2), 2));
 }
 
 
@@ -170,7 +179,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 	//apply spring correction forces
 	for (int sp = 0; sp < springs.size(); sp++) {
 		Vector3D vect = (springs.at(sp).pm_a->position - springs.at(sp).pm_b->position);
-
+		
 		double norm = vect.norm();
 		double l = springs.at(sp).rest_length;
 		double ks = cp->ks;
@@ -195,15 +204,19 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 			(springs.at(sp).pm_b)->forces = f2;
 		}
 
-
+		
 	}
 	//Ideas: check accelerations
 	//
-
+	
 	// TODO (Part 2): Use Verlet integration to compute new point mass positions
 	for (int pm = 0; pm < point_masses.size(); pm++) {
-
+		
 		if (point_masses.at(pm).pinned) {
+
+
+			//WIND SPEED 10000000
+			point_masses.at(pm).position = point_masses.at(pm).position + external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm();
 			continue;
 		}
 
@@ -224,13 +237,6 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
 	}
 
-	// TODO (Part 4): Handle self-collisions.
-	//map a float to a vector holding point masses (map)
-	//float is a 3D box and vector is all point masses in the 3D box
-	/*build_spatial_map();
-	for (int pm = 0; pm < point_masses.size(); pm++) {
-		self_collide(point_masses[pm], simulation_steps);
-	}*/
 
 
 	// TODO (Part 3): Handle collisions with other primitives.
@@ -253,45 +259,60 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 		double at = distance3D((*springs.at(sp).pm_a).position.x, (*springs.at(sp).pm_a).position.y, (*springs.at(sp).pm_a).position.z,
 			(*springs.at(sp).pm_b).position.x, (*springs.at(sp).pm_b).position.y, (*springs.at(sp).pm_b).position.z);
 		double lastAt = 0;
-
-		double diff = at - atMost;
-
-		if ((*springs.at(sp).pm_a).pinned && !(*springs.at(sp).pm_b).pinned) {
-			(*springs.at(sp).pm_b).position += diff * direction;
-		}
-		else if (!(*springs.at(sp).pm_a).pinned && (*springs.at(sp).pm_b).pinned) {
-			(*springs.at(sp).pm_a).position -= diff * direction;
-		}
-		else {
-			(*springs.at(sp).pm_b).position += (diff / 2.0) * direction;
-			(*springs.at(sp).pm_a).position -= (diff / 2.0) * direction;
-		}
-		at = distance3D((*springs.at(sp).pm_a).position.x, (*springs.at(sp).pm_a).position.y, (*springs.at(sp).pm_a).position.z,
-			(*springs.at(sp).pm_b).position.x, (*springs.at(sp).pm_b).position.y, (*springs.at(sp).pm_b).position.z);
+		
+			double diff = at - atMost;
+		
+			if ((*springs.at(sp).pm_a).pinned && !(*springs.at(sp).pm_b).pinned) {
+				(*springs.at(sp).pm_b).position += diff * direction;
+			}
+			else if (!(*springs.at(sp).pm_a).pinned && (*springs.at(sp).pm_b).pinned) {
+				(*springs.at(sp).pm_a).position -= diff * direction;
+			}
+			else {
+				(*springs.at(sp).pm_b).position += (diff / 2.0) * direction;
+				(*springs.at(sp).pm_a).position -= (diff / 2.0) * direction;
+			}
+			at = distance3D((*springs.at(sp).pm_a).position.x, (*springs.at(sp).pm_a).position.y, (*springs.at(sp).pm_a).position.z,
+				(*springs.at(sp).pm_b).position.x, (*springs.at(sp).pm_b).position.y, (*springs.at(sp).pm_b).position.z);
 
 	}
+
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//DO NOT NEED!!!!!!!!!!!!!!!!!!!!!!
 void Cloth::build_spatial_map() {
 	for (const auto &entry : map) {
 		delete(entry.second);
 	}
 	map.clear();
 
-
+	
 	//map[float you found] = vector
 	//map[f].emplace_back(pm)
 	// TODO (Part 4): Build a spatial map out of all of the point masses.
 	for (int pm = 0; pm < point_masses.size(); pm++) {
 
 		float box = hash_position(point_masses[pm].position);
-
+		
 		if (map[box] == NULL) {
 			map[box] = new vector<PointMass*>();
 			//issue
 			map[box]->push_back(&point_masses[pm]);
-		}
-		else {
+		} else{
 			map[box]->push_back(&point_masses[pm]);
 		}
 	}
@@ -319,13 +340,13 @@ void Cloth::self_collide(PointMass &pm, double simulation_steps) {
 				howManyCorrections += 1;
 			}
 		}
-
+	
 	}
-
+	
 	if (howManyCorrections != 0) {
 		pm.position = pm.position + (finalCorrection / (double)howManyCorrections) / simulation_steps;
 	}
-
+	
 }
 
 float Cloth::hash_position(Vector3D pos) {
@@ -358,172 +379,178 @@ float Cloth::hash_position(Vector3D pos) {
 	return ret;
 }
 
+//DO NOT NEED!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
+
+
+
 ///////////////////////////////////////////////////////
 /// YOU DO NOT NEED TO REFER TO ANY CODE BELOW THIS ///
 ///////////////////////////////////////////////////////
 
 void Cloth::reset() {
-	PointMass *pm = &point_masses[0];
-	for (int i = 0; i < point_masses.size(); i++) {
-		pm->position = pm->start_position;
-		pm->last_position = pm->start_position;
-		pm++;
-	}
+  PointMass *pm = &point_masses[0];
+  for (int i = 0; i < point_masses.size(); i++) {
+    pm->position = pm->start_position;
+    pm->last_position = pm->start_position;
+    pm++;
+  }
 }
 
 void Cloth::buildClothMesh() {
-	if (point_masses.size() == 0) return;
+  if (point_masses.size() == 0) return;
 
-	ClothMesh *clothMesh = new ClothMesh();
-	vector<Triangle *> triangles;
+  ClothMesh *clothMesh = new ClothMesh();
+  vector<Triangle *> triangles;
 
-	// Create vector of triangles
-	for (int y = 0; y < num_height_points - 1; y++) {
-		for (int x = 0; x < num_width_points - 1; x++) {
-			PointMass *pm = &point_masses[y * num_width_points + x];
-			// Get neighboring point masses:
-			/*                      *
-			 * pm_A -------- pm_B   *
-			 *             /        *
-			 *  |         /   |     *
-			 *  |        /    |     *
-			 *  |       /     |     *
-			 *  |      /      |     *
-			 *  |     /       |     *
-			 *  |    /        |     *
-			 *      /               *
-			 * pm_C -------- pm_D   *
-			 *                      *
-			 */
+  // Create vector of triangles
+  for (int y = 0; y < num_height_points - 1; y++) {
+    for (int x = 0; x < num_width_points - 1; x++) {
+      PointMass *pm = &point_masses[y * num_width_points + x];
+      // Get neighboring point masses:
+      /*                      *
+       * pm_A -------- pm_B   *
+       *             /        *
+       *  |         /   |     *
+       *  |        /    |     *
+       *  |       /     |     *
+       *  |      /      |     *
+       *  |     /       |     *
+       *  |    /        |     *
+       *      /               *
+       * pm_C -------- pm_D   *
+       *                      *
+       */
+      
+      float u_min = x;
+      u_min /= num_width_points - 1;
+      float u_max = x + 1;
+      u_max /= num_width_points - 1;
+      float v_min = y;
+      v_min /= num_height_points - 1;
+      float v_max = y + 1;
+      v_max /= num_height_points - 1;
+      
+      PointMass *pm_A = pm                       ;
+      PointMass *pm_B = pm                    + 1;
+      PointMass *pm_C = pm + num_width_points    ;
+      PointMass *pm_D = pm + num_width_points + 1;
+      
+      Vector3D uv_A = Vector3D(u_min, v_min, 0);
+      Vector3D uv_B = Vector3D(u_max, v_min, 0);
+      Vector3D uv_C = Vector3D(u_min, v_max, 0);
+      Vector3D uv_D = Vector3D(u_max, v_max, 0);
+      
+      
+      // Both triangles defined by vertices in counter-clockwise orientation
+      triangles.push_back(new Triangle(pm_A, pm_C, pm_B, 
+                                       uv_A, uv_C, uv_B));
+      triangles.push_back(new Triangle(pm_B, pm_C, pm_D, 
+                                       uv_B, uv_C, uv_D));
+    }
+  }
 
-			float u_min = x;
-			u_min /= num_width_points - 1;
-			float u_max = x + 1;
-			u_max /= num_width_points - 1;
-			float v_min = y;
-			v_min /= num_height_points - 1;
-			float v_max = y + 1;
-			v_max /= num_height_points - 1;
+  // For each triangle in row-order, create 3 edges and 3 internal halfedges
+  for (int i = 0; i < triangles.size(); i++) {
+    Triangle *t = triangles[i];
 
-			PointMass *pm_A = pm;
-			PointMass *pm_B = pm + 1;
-			PointMass *pm_C = pm + num_width_points;
-			PointMass *pm_D = pm + num_width_points + 1;
+    // Allocate new halfedges on heap
+    Halfedge *h1 = new Halfedge();
+    Halfedge *h2 = new Halfedge();
+    Halfedge *h3 = new Halfedge();
 
-			Vector3D uv_A = Vector3D(u_min, v_min, 0);
-			Vector3D uv_B = Vector3D(u_max, v_min, 0);
-			Vector3D uv_C = Vector3D(u_min, v_max, 0);
-			Vector3D uv_D = Vector3D(u_max, v_max, 0);
+    // Allocate new edges on heap
+    Edge *e1 = new Edge();
+    Edge *e2 = new Edge();
+    Edge *e3 = new Edge();
 
+    // Assign a halfedge pointer to the triangle
+    t->halfedge = h1;
 
-			// Both triangles defined by vertices in counter-clockwise orientation
-			triangles.push_back(new Triangle(pm_A, pm_C, pm_B,
-				uv_A, uv_C, uv_B));
-			triangles.push_back(new Triangle(pm_B, pm_C, pm_D,
-				uv_B, uv_C, uv_D));
-		}
-	}
+    // Assign halfedge pointers to point masses
+    t->pm1->halfedge = h1;
+    t->pm2->halfedge = h2;
+    t->pm3->halfedge = h3;
 
-	// For each triangle in row-order, create 3 edges and 3 internal halfedges
-	for (int i = 0; i < triangles.size(); i++) {
-		Triangle *t = triangles[i];
+    // Update all halfedge pointers
+    h1->edge = e1;
+    h1->next = h2;
+    h1->pm = t->pm1;
+    h1->triangle = t;
 
-		// Allocate new halfedges on heap
-		Halfedge *h1 = new Halfedge();
-		Halfedge *h2 = new Halfedge();
-		Halfedge *h3 = new Halfedge();
+    h2->edge = e2;
+    h2->next = h3;
+    h2->pm = t->pm2;
+    h2->triangle = t;
 
-		// Allocate new edges on heap
-		Edge *e1 = new Edge();
-		Edge *e2 = new Edge();
-		Edge *e3 = new Edge();
+    h3->edge = e3;
+    h3->next = h1;
+    h3->pm = t->pm3;
+    h3->triangle = t;
+  }
 
-		// Assign a halfedge pointer to the triangle
-		t->halfedge = h1;
+  // Go back through the cloth mesh and link triangles together using halfedge
+  // twin pointers
 
-		// Assign halfedge pointers to point masses
-		t->pm1->halfedge = h1;
-		t->pm2->halfedge = h2;
-		t->pm3->halfedge = h3;
+  // Convenient variables for math
+  int num_height_tris = (num_height_points - 1) * 2;
+  int num_width_tris = (num_width_points - 1) * 2;
 
-		// Update all halfedge pointers
-		h1->edge = e1;
-		h1->next = h2;
-		h1->pm = t->pm1;
-		h1->triangle = t;
+  bool topLeft = true;
+  for (int i = 0; i < triangles.size(); i++) {
+    Triangle *t = triangles[i];
 
-		h2->edge = e2;
-		h2->next = h3;
-		h2->pm = t->pm2;
-		h2->triangle = t;
+    if (topLeft) {
+      // Get left triangle, if it exists
+      if (i % num_width_tris != 0) { // Not a left-most triangle
+        Triangle *temp = triangles[i - 1];
+        t->pm1->halfedge->twin = temp->pm3->halfedge;
+      } else {
+        t->pm1->halfedge->twin = nullptr;
+      }
 
-		h3->edge = e3;
-		h3->next = h1;
-		h3->pm = t->pm3;
-		h3->triangle = t;
-	}
+      // Get triangle above, if it exists
+      if (i >= num_width_tris) { // Not a top-most triangle
+        Triangle *temp = triangles[i - num_width_tris + 1];
+        t->pm3->halfedge->twin = temp->pm2->halfedge;
+      } else {
+        t->pm3->halfedge->twin = nullptr;
+      }
 
-	// Go back through the cloth mesh and link triangles together using halfedge
-	// twin pointers
+      // Get triangle to bottom right; guaranteed to exist
+      Triangle *temp = triangles[i + 1];
+      t->pm2->halfedge->twin = temp->pm1->halfedge;
+    } else {
+      // Get right triangle, if it exists
+      if (i % num_width_tris != num_width_tris - 1) { // Not a right-most triangle
+        Triangle *temp = triangles[i + 1];
+        t->pm3->halfedge->twin = temp->pm1->halfedge;
+      } else {
+        t->pm3->halfedge->twin = nullptr;
+      }
 
-	// Convenient variables for math
-	int num_height_tris = (num_height_points - 1) * 2;
-	int num_width_tris = (num_width_points - 1) * 2;
+      // Get triangle below, if it exists
+      if (i + num_width_tris - 1 < 1.0f * num_width_tris * num_height_tris / 2.0f) { // Not a bottom-most triangle
+        Triangle *temp = triangles[i + num_width_tris - 1];
+        t->pm2->halfedge->twin = temp->pm3->halfedge;
+      } else {
+        t->pm2->halfedge->twin = nullptr;
+      }
 
-	bool topLeft = true;
-	for (int i = 0; i < triangles.size(); i++) {
-		Triangle *t = triangles[i];
+      // Get triangle to top left; guaranteed to exist
+      Triangle *temp = triangles[i - 1];
+      t->pm1->halfedge->twin = temp->pm2->halfedge;
+    }
 
-		if (topLeft) {
-			// Get left triangle, if it exists
-			if (i % num_width_tris != 0) { // Not a left-most triangle
-				Triangle *temp = triangles[i - 1];
-				t->pm1->halfedge->twin = temp->pm3->halfedge;
-			}
-			else {
-				t->pm1->halfedge->twin = nullptr;
-			}
+    topLeft = !topLeft;
+  }
 
-			// Get triangle above, if it exists
-			if (i >= num_width_tris) { // Not a top-most triangle
-				Triangle *temp = triangles[i - num_width_tris + 1];
-				t->pm3->halfedge->twin = temp->pm2->halfedge;
-			}
-			else {
-				t->pm3->halfedge->twin = nullptr;
-			}
-
-			// Get triangle to bottom right; guaranteed to exist
-			Triangle *temp = triangles[i + 1];
-			t->pm2->halfedge->twin = temp->pm1->halfedge;
-		}
-		else {
-			// Get right triangle, if it exists
-			if (i % num_width_tris != num_width_tris - 1) { // Not a right-most triangle
-				Triangle *temp = triangles[i + 1];
-				t->pm3->halfedge->twin = temp->pm1->halfedge;
-			}
-			else {
-				t->pm3->halfedge->twin = nullptr;
-			}
-
-			// Get triangle below, if it exists
-			if (i + num_width_tris - 1 < 1.0f * num_width_tris * num_height_tris / 2.0f) { // Not a bottom-most triangle
-				Triangle *temp = triangles[i + num_width_tris - 1];
-				t->pm2->halfedge->twin = temp->pm3->halfedge;
-			}
-			else {
-				t->pm2->halfedge->twin = nullptr;
-			}
-
-			// Get triangle to top left; guaranteed to exist
-			Triangle *temp = triangles[i - 1];
-			t->pm1->halfedge->twin = temp->pm2->halfedge;
-		}
-
-		topLeft = !topLeft;
-	}
-
-	clothMesh->triangles = triangles;
-	this->clothMesh = clothMesh;
+  clothMesh->triangles = triangles;
+  this->clothMesh = clothMesh;
 }
