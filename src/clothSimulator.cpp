@@ -615,7 +615,7 @@ bool ClothSimulator::keyCallbackEvent(int key, int scancode, int action,
 			}
 
 
-			//FORCE DIRECTION (Change Key)
+		//FORCE DIRECTION (Change Key)
 		case 'w':
 		case 'W':
 			gravity = Vector3D(-9.8, 0, 0);
@@ -634,6 +634,19 @@ bool ClothSimulator::keyCallbackEvent(int key, int scancode, int action,
 			break;
 
 			break;
+
+		// Wind Speed
+		case '+':
+		case '=':
+			(*cloth).windSpeed -= 100000;
+			break;
+
+		case '-':
+		case '_':
+			(*cloth).windSpeed += 100000;
+			break;
+			return true;
+
 		}
 	}
 
