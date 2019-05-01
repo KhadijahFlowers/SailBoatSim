@@ -49,7 +49,10 @@ struct Cloth {
 
   void buildGrid();
 
-  double distance3D(double x1, double y1, double z1, double x2, double y2, double z2);
+
+
+ double distance3D(double x1, double y1, double z1, double x2, double y2, double z2);
+
 
   void simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                 vector<Vector3D> external_accelerations,
@@ -68,6 +71,7 @@ struct Cloth {
   int num_width_points;
   int num_height_points;
   double thickness;
+  int windSpeed = 1000000;
   e_orientation orientation;
 
   // Cloth components

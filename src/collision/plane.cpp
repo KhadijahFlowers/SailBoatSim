@@ -3,7 +3,6 @@
 
 #include "../clothMesh.h"
 #include "../clothSimulator.h"
-#include "../leak_fix.h"
 #include "plane.h"
 
 using namespace std;
@@ -13,7 +12,18 @@ using namespace CGL;
 
 void Plane::collide(PointMass &pm) {
   // TODO (Part 3): Handle collisions with planes.
-
+	
+	Vector3D check = pm.position - point;
+	double pn = dot(normal, check) - SURFACE_OFFSET;
+	if (pn < 0.0 /*below plane*/) {
+		//use last position
+		Vector3D tangent = point - pm.position;
+		Vector3D corrctionVector = tangent - pm.last_position; 
+		
+		Vector3D newPoint = (pm.last_position + (1.0 - friction) * corrctionVector * SURFACE_OFFSET);
+		pm.position = newPoint + Vector3D(0, SURFACE_OFFSET, 0);
+	}
+	/*/scene/plane.json*/
 }
 
 void Plane::render(GLShader &shader) {
@@ -29,10 +39,10 @@ void Plane::render(GLShader &shader) {
   MatrixXf positions(3, 4);
   MatrixXf normals(3, 4);
 
-  positions.col(0) << sPoint + 2 * (sCross + sParallel);
-  positions.col(1) << sPoint + 2 * (sCross - sParallel);
-  positions.col(2) << sPoint + 2 * (-sCross + sParallel);
-  positions.col(3) << sPoint + 2 * (-sCross - sParallel);
+  positions.col(0) << sPoint + 10 * (sCross + sParallel);
+  positions.col(1) << sPoint + 10 * (sCross - sParallel);
+  positions.col(2) << sPoint + 10 * (-sCross + sParallel);
+  positions.col(3) << sPoint + 10 * (-sCross - sParallel);
 
   normals.col(0) << sNormal;
   normals.col(1) << sNormal;
@@ -48,10 +58,4 @@ void Plane::render(GLShader &shader) {
   }
 
   shader.drawArray(GL_TRIANGLE_STRIP, 0, 4);
-#ifdef LEAK_PATCH_ON
-  shader.freeAttrib("in_position");
-  if (shader.attrib("in_normal", false) != -1) {
-    shader.freeAttrib("in_normal");
-  }
-#endif
 }
