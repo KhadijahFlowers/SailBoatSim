@@ -34,11 +34,11 @@ void main() {
 
   vec3 pos = (u_light_pos - v_position.xyz);
 
-  vec3 ka = vec3(0.2, 0.2, 0.2);
+  vec3 ka = vec3(0.3, 0.3, 0.3);
   vec3 ks = vec3(0.5, 0.5, 0.5);
   vec3 kd = u_color.xyz;
 
-  vec3 Ia = vec3(1, 1, 1);
+  vec3 Ia = vec3(0, 1, 1);
 
   vec3 ambient = ka * Ia;
 
