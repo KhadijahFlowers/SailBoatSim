@@ -1,9 +1,4 @@
 {
-  "sphere": {
-    "origin": [ 0.5, 0.2, 0.8 ],
-    "radius": 0.2,
-    "friction": 0.3
-  },
   "plane": { 
     "point": [ 0, 0, 0 ],
     "normal": [ 0, 1, 0 ],

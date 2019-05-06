@@ -129,9 +129,9 @@ void ClothSimulator::load_shaders() {
 
 		// Special filenames are treated a bit differently
 		ShaderTypeHint hint;
-		if (shader_name == "Wireframe") {
-			hint = ShaderTypeHint::WIREFRAME;
-			std::cout << "Type: Wireframe" << std::endl;
+		if (shader_name == "Water") {
+			hint = ShaderTypeHint::PHONG;
+			std::cout << "Type: Water" << std::endl;
 		}
 		else if (shader_name == "Normal") {
 			hint = ShaderTypeHint::NORMALS;
@@ -150,7 +150,7 @@ void ClothSimulator::load_shaders() {
 
 	// Assuming that it's there, use "Wireframe" by default
 	for (size_t i = 0; i < shaders_combobox_names.size(); ++i) {
-		if (shaders_combobox_names[i] == "Wireframe") {
+		if (shaders_combobox_names[i] == "Water") {
 			active_shader_idx = i;
 			break;
 		}

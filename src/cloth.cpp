@@ -43,7 +43,7 @@ void Cloth::buildGrid() {
 
 	for (int x = 0; x < num_width_points; x++) {
 		for (int y = 0; y < num_height_points; y++) {
-			///
+			
 			float pn = rand();
 			float pnq;
 			if (pn <= RAND_MAX / 2) {
@@ -53,7 +53,7 @@ void Cloth::buildGrid() {
 				pnq = -1.f;
 			}
 			float z = pnq * rand() / RAND_MAX / 1000.f;
-			///
+			
 
 			Vector3D pos = Vector3D(x * width / num_width_points, y * height / num_height_points + 1, z);
 			PointMass newGuy = PointMass(pos, false);
