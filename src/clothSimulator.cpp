@@ -826,6 +826,53 @@ void ClothSimulator::initGUI(Screen *screen) {
     fb->setSpinnable(true);
     fb->setCallback([this](float value) { gravity.z = value; });
   }
+
+
+  // Wind Speed
+
+  new Label(window, "Wind", "sans-bold");
+
+  {
+	  Widget *panel = new Widget(window);
+	  GridLayout *layout =
+		  new GridLayout(Orientation::Horizontal, 2, Alignment::Middle, 5, 5);
+	  layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+	  layout->setSpacing(0, 10);
+	  panel->setLayout(layout);
+
+	  new Label(panel, "x :", "sans-bold");
+
+	  FloatBox<double> *fb = new FloatBox<double>(panel);
+	  fb->setEditable(true);
+	  fb->setFixedSize(Vector2i(100, 20));
+	  fb->setFontSize(14);
+	  fb->setValue(gravity.x);
+	  fb->setUnits("m/s^2");
+	  fb->setSpinnable(true);
+	  fb->setCallback([this](float value) { gravity.x = value; });
+
+	  new Label(panel, "y :", "sans-bold");
+
+	  fb = new FloatBox<double>(panel);
+	  fb->setEditable(true);
+	  fb->setFixedSize(Vector2i(100, 20));
+	  fb->setFontSize(14);
+	  fb->setValue(gravity.y);
+	  fb->setUnits("m/s^2");
+	  fb->setSpinnable(true);
+	  fb->setCallback([this](float value) { gravity.y = value; });
+
+	  new Label(panel, "z :", "sans-bold");
+
+	  fb = new FloatBox<double>(panel);
+	  fb->setEditable(true);
+	  fb->setFixedSize(Vector2i(100, 20));
+	  fb->setFontSize(14);
+	  fb->setValue(gravity.z);
+	  fb->setUnits("m/s^2");
+	  fb->setSpinnable(true);
+	  fb->setCallback([this](float value) { gravity.z = value; });
+  }
   
   window = new Window(screen, "Appearance");
   window->setPosition(Vector2i(15, 15));
