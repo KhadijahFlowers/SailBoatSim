@@ -180,12 +180,18 @@ ClothSimulator::~ClothSimulator() {
 
 	if (cloth) delete cloth;
 	if (cp) delete cp;
+	if (plane) delete plane;
+	if (pp) delete pp;
 	if (collision_objects) delete collision_objects;
 }
 
 void ClothSimulator::loadCloth(Cloth *cloth) { this->cloth = cloth; }
 
 void ClothSimulator::loadClothParameters(ClothParameters *cp) { this->cp = cp; }
+
+void ClothSimulator::loadPlane(Plane *plane) { this->plane = plane; }
+
+void ClothSimulator::loadPlaneParameters(PlaneParameters *pp) { this->pp = pp; }
 
 void ClothSimulator::loadCollisionObjects(vector<CollisionObject *> *objects) { this->collision_objects = objects; }
 
@@ -197,7 +203,7 @@ void ClothSimulator::init() {
 
 	// Initialize GUI
 	screen->setSize(default_window_size);
-	initGUI(screen);
+	initGUI(screen, true);
 
 	// Initialize camera
 
@@ -249,6 +255,7 @@ void ClothSimulator::drawContents() {
 
 		for (int i = 0; i < simulation_steps; i++) {
 			cloth->simulate(frames_per_sec, simulation_steps, cp, external_accelerations, collision_objects);
+			//plane->simulate(frames_per_sec, simulation_steps, pp, external_accelerations, collision_objects);
 		}
 	}
 
@@ -670,7 +677,7 @@ bool ClothSimulator::resizeCallbackEvent(int width, int height) {
 	return true;
 }
 
-void ClothSimulator::initGUI(Screen *screen) {
+void ClothSimulator::initGUI(Screen *screen, bool cloth_sim_bool) {
 	Window *window;
 
 	window = new Window(screen, "Simulation");
@@ -722,10 +729,12 @@ void ClothSimulator::initGUI(Screen *screen) {
 		fb->setEditable(true);
 		fb->setFixedSize(Vector2i(100, 20));
 		fb->setFontSize(14);
-		fb->setValue(cp->density / 10);
+		if (cloth_sim_bool)
+			fb->setValue(cp->density / 10);
 		fb->setUnits("g/cm^2");
 		fb->setSpinnable(true);
-		fb->setCallback([this](float value) { cp->density = (double)(value * 10); });
+		if (cloth_sim_bool)
+			fb->setCallback([this](float value) { cp->density = (double)(value * 10); });
 
 		new Label(panel, "ks :", "sans-bold");
 
@@ -733,11 +742,13 @@ void ClothSimulator::initGUI(Screen *screen) {
 		fb->setEditable(true);
 		fb->setFixedSize(Vector2i(100, 20));
 		fb->setFontSize(14);
-		fb->setValue(cp->ks);
+		if(cp)
+			fb->setValue(cp->ks);
 		fb->setUnits("N/m");
 		fb->setSpinnable(true);
 		fb->setMinValue(0);
-		fb->setCallback([this](float value) { cp->ks = value; });
+		if (cp)
+			fb->setCallback([this](float value) { cp->ks = value; });
 	}
 
 	// Simulation constants
@@ -784,12 +795,14 @@ void ClothSimulator::initGUI(Screen *screen) {
 			new BoxLayout(Orientation::Horizontal, Alignment::Middle, 0, 5));
 
 		Slider *slider = new Slider(panel);
-		slider->setValue(cp->damping);
+		if (cp)
+			slider->setValue(cp->damping);
 		slider->setFixedWidth(105);
 
 		TextBox *percentage = new TextBox(panel);
 		percentage->setFixedWidth(75);
-		percentage->setValue(to_string(cp->damping));
+		if (cp)
+			percentage->setValue(to_string(cp->damping));
 		percentage->setUnits("%");
 		percentage->setFontSize(14);
 
@@ -797,7 +810,8 @@ void ClothSimulator::initGUI(Screen *screen) {
 			percentage->setValue(std::to_string(value));
 		});
 		slider->setFinalCallback([&](float value) {
-			cp->damping = (double)value;
+			if (cp)
+				cp->damping = (double)value;
 			// cout << "Final slider value: " << (int)(value * 100) << endl;
 		});
 	}
@@ -812,12 +826,14 @@ void ClothSimulator::initGUI(Screen *screen) {
 			new BoxLayout(Orientation::Horizontal, Alignment::Middle, 0, 5));
 
 		Slider *slider = new Slider(panel);
-		slider->setValue(cp->damping); //UPDATE
+		if (cp)
+			slider->setValue(cp->damping); //UPDATE
 		slider->setFixedWidth(105);
 
 		TextBox *percentage = new TextBox(panel);
 		percentage->setFixedWidth(75);
-		percentage->setValue(to_string(cp->damping));
+		if (cp)
+			percentage->setValue(to_string(cp->damping));
 		percentage->setUnits("%");
 		percentage->setFontSize(14);
 
@@ -825,7 +841,8 @@ void ClothSimulator::initGUI(Screen *screen) {
 			percentage->setValue(std::to_string(value));
 		});
 		slider->setFinalCallback([&](float value) {
-			cp->damping = (double)value;
+			if (cp)
+				cp->damping = (double)value;
 			// cout << "Final slider value: " << (int)(value * 100) << endl;
 		});
 	}
@@ -840,12 +857,14 @@ void ClothSimulator::initGUI(Screen *screen) {
 			new BoxLayout(Orientation::Horizontal, Alignment::Middle, 0, 5));
 
 		Slider *slider = new Slider(panel);
-		slider->setValue(cp->damping); //UPDATE
+		if (cp)
+			slider->setValue(cp->damping); //UPDATE
 		slider->setFixedWidth(105);
 
 		TextBox *percentage = new TextBox(panel);
 		percentage->setFixedWidth(75);
-		percentage->setValue(to_string(cp->damping));
+		if (cp)
+			percentage->setValue(to_string(cp->damping));
 		percentage->setUnits("%");
 		percentage->setFontSize(14);
 
@@ -853,7 +872,8 @@ void ClothSimulator::initGUI(Screen *screen) {
 			percentage->setValue(std::to_string(value));
 		});
 		slider->setFinalCallback([&](float value) {
-			cp->damping = (double)value;
+			if (cp)
+				cp->damping = (double)value;
 			// cout << "Final slider value: " << (int)(value * 100) << endl;
 		});
 	}
@@ -923,21 +943,24 @@ void ClothSimulator::initGUI(Screen *screen) {
 	{
 		Button *b = new Button(window, "wooden");
 		b->setFlags(Button::ToggleButton);
-		b->setPushed(cp->enable_structural_constraints); //UPDATE
+		if (cp)
+			b->setPushed(cp->enable_structural_constraints); //UPDATE
 		b->setFontSize(14);
 		b->setChangeCallback(
 			[this](bool state) { cp->enable_structural_constraints = state; });
 
 		b = new Button(window, "sail boat");
 		b->setFlags(Button::ToggleButton);
-		b->setPushed(cp->enable_shearing_constraints); //UPDATE
+		if (cp)
+			b->setPushed(cp->enable_shearing_constraints); //UPDATE
 		b->setFontSize(14);
 		b->setChangeCallback(
 			[this](bool state) { cp->enable_shearing_constraints = state; });
 
 		b = new Button(window, "concrete");
 		b->setFlags(Button::ToggleButton);
-		b->setPushed(cp->enable_bending_constraints); //UPDATE
+		if (cp)
+			b->setPushed(cp->enable_bending_constraints); //UPDATE
 		b->setFontSize(14);
 		b->setChangeCallback(
 			[this](bool state) { cp->enable_bending_constraints = state; });

@@ -36,6 +36,7 @@ const string CLOTH = "cloth";
 const unordered_set<string> VALID_KEYS = {SPHERE, PLANE, CLOTH};
 
 ClothSimulator *app = nullptr;
+ClothSimulator *app_plane = nullptr;
 GLFWwindow *window = nullptr;
 Screen *screen = nullptr;
 
@@ -156,7 +157,7 @@ void incompleteObjectError(const char *object, const char *attribute) {
   exit(-1);
 }
 
-bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
+bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, Plane *plane, PlaneParameters *pp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
   // Read JSON from file
   ifstream i(filename);
   if (!i.good()) {
@@ -180,7 +181,7 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
     json object = it.value();
 
     // Parse object depending on type (cloth, sphere, or plane)
-    if (key == CLOTH) {
+    if (key == CLOTH) { 
       // Cloth
       double width, height;
       int num_width_points, num_height_points;
@@ -328,7 +329,7 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
       Sphere *s = new Sphere(origin, radius, friction, sphere_num_lat, sphere_num_lon);
       objects->push_back(s);
     } else { // PLANE
-      Vector3D point, normal;
+      /*Vector3D point, normal;
       double friction;
 
       auto it_point = object.find("point");
@@ -355,7 +356,138 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
       }
 
       Plane *p = new Plane(point, normal, friction);
-      objects->push_back(p);
+      objects->push_back(p);*/
+	  // Cloth
+		double width, height;
+		int num_width_points, num_height_points;
+		float thickness;
+		e_orientation orientation;
+		e_orientation2 orientation2;
+		vector<vector<int>> pinned;
+
+		auto it_width = object.find("width");
+		if (it_width != object.end()) {
+			width = *it_width;
+		}
+		else {
+			incompleteObjectError("plane", "width");
+		}
+
+		auto it_height = object.find("height");
+		if (it_height != object.end()) {
+			height = *it_height;
+		}
+		else {
+			incompleteObjectError("plane", "height");
+		}
+
+		auto it_num_width_points = object.find("num_width_points");
+		if (it_num_width_points != object.end()) {
+			num_width_points = *it_num_width_points;
+		}
+		else {
+			incompleteObjectError("plane", "num_width_points");
+		}
+
+		auto it_num_height_points = object.find("num_height_points");
+		if (it_num_height_points != object.end()) {
+			num_height_points = *it_num_height_points;
+		}
+		else {
+			incompleteObjectError("plane", "num_height_points");
+		}
+
+		auto it_thickness = object.find("thickness");
+		if (it_thickness != object.end()) {
+			thickness = *it_thickness;
+		}
+		else {
+			incompleteObjectError("plane", "thickness");
+		}
+
+		auto it_orientation = object.find("orientation");
+		if (it_orientation != object.end()) {
+			orientation2 = *it_orientation;
+		}
+		else {
+			incompleteObjectError("plane", "orientation");
+		}
+
+		auto it_pinned = object.find("pinned");
+		if (it_pinned != object.end()) {
+			vector<json> points = *it_pinned;
+			for (auto pt : points) {
+				vector<int> point = pt;
+				pinned.push_back(point);
+			}
+		}
+
+		plane->width = width;
+		plane->height = height;
+		plane->num_width_points = num_width_points;
+		plane->num_height_points = num_height_points;
+		plane->thickness = thickness;
+		plane->orientation = orientation2;
+		plane->pinned = pinned;
+
+		// Cloth parameters
+		bool enable_structural_constraints, enable_shearing_constraints, enable_bending_constraints;
+		double damping, density, ks;
+
+		auto it_enable_structural = object.find("enable_structural");
+		if (it_enable_structural != object.end()) {
+			enable_structural_constraints = *it_enable_structural;
+		}
+		else {
+			incompleteObjectError("plane", "enable_structural");
+		}
+
+		auto it_enable_shearing = object.find("enable_shearing");
+		if (it_enable_shearing != object.end()) {
+			enable_shearing_constraints = *it_enable_shearing;
+		}
+		else {
+			incompleteObjectError("plane", "it_enable_shearing");
+		}
+
+		auto it_enable_bending = object.find("enable_bending");
+		if (it_enable_bending != object.end()) {
+			enable_bending_constraints = *it_enable_bending;
+		}
+		else {
+			incompleteObjectError("plane", "it_enable_bending");
+		}
+
+		auto it_damping = object.find("damping");
+		if (it_damping != object.end()) {
+			damping = *it_damping;
+		}
+		else {
+			incompleteObjectError("plane", "damping");
+		}
+
+		auto it_density = object.find("density");
+		if (it_density != object.end()) {
+			density = *it_density;
+		}
+		else {
+			incompleteObjectError("plane", "density");
+		}
+
+		auto it_ks = object.find("ks");
+		if (it_ks != object.end()) {
+			ks = *it_ks;
+		}
+		else {
+			incompleteObjectError("plane", "ks");
+		}
+
+		pp->enable_structural_constraints = enable_structural_constraints;
+		pp->enable_shearing_constraints = enable_shearing_constraints;
+		pp->enable_bending_constraints = enable_bending_constraints;
+		pp->density = density;
+		pp->damping = damping;
+		pp->ks = ks;
     }
   }
 
@@ -398,6 +530,9 @@ int main(int argc, char **argv) {
   Cloth cloth;
   ClothParameters cp;
   vector<CollisionObject *> objects;
+
+  Plane plane;
+  PlaneParameters pp;
   
   int c;
   
@@ -459,7 +594,7 @@ int main(int argc, char **argv) {
     file_to_load_from = def_fname.str();
   }
   
-  bool success = loadObjectsFromFile(file_to_load_from, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon);
+  bool success = loadObjectsFromFile(file_to_load_from, &cloth, &cp, &plane, &pp, &objects, sphere_num_lat, sphere_num_lon);
   if (!success) {
     std::cout << "Warn: Unable to load from file: " << file_to_load_from << std::endl;
   }
@@ -478,6 +613,17 @@ int main(int argc, char **argv) {
   app->loadClothParameters(&cp);
   app->loadCollisionObjects(&objects);
   app->init();
+
+  // Initialize the Plane object
+  //plane.buildGrid();
+  //plane.buildClothMesh();
+
+  // Initialize the ClothSimulator object
+  //app_plane = new ClothSimulator(project_root, screen);
+  //app_plane->loadPlane(&plane);
+  //app_plane->loadPlaneParameters(&pp);
+  //app_plane->loadCollisionObjects(&objects);
+  //app_plane->init();
 
   // Call this after all the widgets have been defined
 

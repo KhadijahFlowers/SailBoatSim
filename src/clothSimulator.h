@@ -5,6 +5,7 @@
 
 #include "camera.h"
 #include "cloth.h"
+#include "collision/plane.h"
 #include "collision/collisionObject.h"
 
 using namespace nanogui;
@@ -21,6 +22,8 @@ public:
 
   void loadCloth(Cloth *cloth);
   void loadClothParameters(ClothParameters *cp);
+  void loadPlane(Plane *plane);
+  void loadPlaneParameters(PlaneParameters *pp);
   void loadCollisionObjects(vector<CollisionObject *> *objects);
   virtual bool isAlive();
   virtual void drawContents();
@@ -35,7 +38,7 @@ public:
   virtual bool resizeCallbackEvent(int width, int height);
 
 private:
-  virtual void initGUI(Screen *screen);
+  virtual void initGUI(Screen *screen, bool cloth_sim_bool);
   void drawWireframe(GLShader &shader);
   void drawNormals(GLShader &shader);
   void drawPhong(GLShader &shader);
@@ -63,6 +66,8 @@ private:
 
   Cloth *cloth;
   ClothParameters *cp;
+  Plane *plane;
+  PlaneParameters *pp;
   vector<CollisionObject *> *collision_objects;
 
   // OpenGL attributes
