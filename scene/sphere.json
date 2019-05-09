@@ -4,11 +4,6 @@
     "normal": [ 0, 1, 0 ],
     "friction": 0.5
   },
-  "sphere": {
-    "origin": [0.9, 0.9, 0.9],
-    "radius": 0.1,
-    "friction": 0.3
-  },
   "cloth": {
     "damping": 0.2,
     "density": 150.0,

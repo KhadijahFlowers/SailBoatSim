@@ -7,6 +7,7 @@
 #include "misc/camera_info.h"
 
 #include "math.h"
+#include "scene.h"
 
 namespace CGL {
 
@@ -14,7 +15,38 @@ namespace CGL {
  * Camera.
  */
 class Camera {
+	struct Came : Instance {
+
+		float hfov; ///< horizontal field of view
+		float vfov; ///< vertical field of view
+
+		float nclip; ///< near clip
+		float fclip; ///< far clip
+
+		Vector3D position;  ///< position of the camera
+		Vector3D view_dir;  ///< view direction of the camera
+		Vector3D up_dir;    ///< up direction of the camera
+
+		Came();
+
+	}; // struct Camera
 public:
+	struct Instance {
+
+		float hfov; ///< horizontal field of view
+		float vfov; ///< vertical field of view
+
+		float nclip; ///< near clip
+		float fclip; ///< far clip
+
+		Vector3D position;  ///< position of the camera
+		Vector3D view_dir;  ///< view direction of the camera
+		Vector3D up_dir;    ///< up direction of the camera
+
+		Instance();
+		//Camera();
+
+	}; // struct Camera
   /*
     Sets the field of view to match screen screenW/H.
     NOTE: data and screenW/H will almost certainly disagree about the aspect

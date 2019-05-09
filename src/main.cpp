@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <stdlib.h> // atoi for getopt inputs
 
+#include "collada.h"
+#include "scene.h"
 #include "CGL/CGL.h"
 #include "collision/plane.h"
 #include "collision/sphere.h"
@@ -156,7 +158,24 @@ void incompleteObjectError(const char *object, const char *attribute) {
   exit(-1);
 }
 
-bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
+//bool loadObjectsFromFile(MeshEdit* collada_viewer, string filename, string filename_dae, Cloth *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
+
+bool loadObjectsFromFile(string filename, string filename_dae, Cloth *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
+  //Read dae
+  Scene* scene = new Scene();
+  
+  // declaring character array // copy the contents of the string to char array
+  const string temp = filename_dae;
+  const int ll = temp.length();
+  char * path = new char[ll + 1];
+  strcpy(path, filename_dae.c_str());
+  
+  if (ColladaParser::load(path, scene) < 0) {
+	  delete scene;
+	  return -1;
+  }
+  
+  
   // Read JSON from file
   ifstream i(filename);
   if (!i.good()) {
@@ -360,6 +379,8 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
   }
 
   i.close();
+
+  //collada_viewer->load(scene);
   
   return true;
 }
@@ -405,15 +426,22 @@ int main(int argc, char **argv) {
   int sphere_num_lon = 40;
   
   std::string file_to_load_from;
+  std::string file_to_load_from_dae;
   bool file_specified = false;
+  bool file_specified_dae = false;
   
-  while ((c = getopt (argc, argv, "f:r:a:o:")) != -1) {
+  while ((c = getopt (argc, argv, "d:f:r:a:o:")) != -1) {
     switch (c) {
-      case 'f': {
-        file_to_load_from = optarg;
-        file_specified = true;
+      case 'd': { //THIS ONE IS FOR THE DAE PART - comes last
+        file_to_load_from_dae = optarg;
+        file_specified_dae = true;
         break;
       }
+	  case 'f': { //THIS ONE IS FOR THE JSON
+		  file_to_load_from = optarg;
+		  file_specified = true;
+		  break;
+	  }
       case 'r': {
         project_root = optarg;
         if (!is_valid_project_root(project_root)) {
@@ -452,14 +480,34 @@ int main(int argc, char **argv) {
     std::cout << "Loading files starting from: " << project_root << std::endl;
   }
 
-  if (!file_specified) { // No arguments, default initialization
+  if (!file_specified) { // No arguments json, default initialization
     std::stringstream def_fname;
     def_fname << project_root;
     def_fname << "/scene/pinned2.json";
     file_to_load_from = def_fname.str();
   }
+
+  if (!file_specified_dae) { // No arguments dae, default initialization
+	  std::stringstream def_fname;
+	  def_fname << project_root;
+	  def_fname << "/scene/boat_sail.dae";
+	  file_to_load_from_dae = def_fname.str();
+  }
+
+  //// create viewer
+  //Viewer viewer = Viewer();
+
+  //// create collada_viewer
+  //MeshEdit* collada_viewer = new MeshEdit();
+
+  //// set collada_viewer as renderer
+  //viewer.set_renderer(collada_viewer);
+
+  //// init viewer
+  //viewer.init();
   
-  bool success = loadObjectsFromFile(file_to_load_from, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon);
+  //bool success = loadObjectsFromFile(collada_viewer, file_to_load_from, file_to_load_from_dae, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon);
+  bool success = loadObjectsFromFile(file_to_load_from, file_to_load_from_dae, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon); //Stopped here
   if (!success) {
     std::cout << "Warn: Unable to load from file: " << file_to_load_from << std::endl;
   }
