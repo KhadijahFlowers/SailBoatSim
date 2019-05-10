@@ -60,6 +60,7 @@ private:
 
   CGL::Vector3D gravity = CGL::Vector3D(0, -9.8, 0);
   CGL::Vector3D lastDir = CGL::Vector3D(0, -9.8, 0);
+  Vector3f lightIntensity = Vector3f(3, 3, 3);
   nanogui::Color color = nanogui::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
   Cloth *cloth;
