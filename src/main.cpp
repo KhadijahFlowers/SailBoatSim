@@ -15,10 +15,12 @@
 #include "collada.h"
 #include "scene.h"
 #include "CGL/CGL.h"
+#include "CGL/viewer.h"
 #include "collision/plane.h"
 #include "collision/sphere.h"
 #include "cloth.h"
 #include "clothSimulator.h"
+#include "meshEdit.h"
 #include "json.hpp"
 #include "misc/file_utils.h"
 
@@ -494,17 +496,17 @@ int main(int argc, char **argv) {
 	  file_to_load_from_dae = def_fname.str();
   }
 
-  //// create viewer
-  //Viewer viewer = Viewer();
+  // create viewer
+  Viewer viewer = Viewer();
 
-  //// create collada_viewer
-  //MeshEdit* collada_viewer = new MeshEdit();
+  // create collada_viewer
+  MeshEdit* collada_viewer = new MeshEdit();
 
-  //// set collada_viewer as renderer
-  //viewer.set_renderer(collada_viewer);
+  // set collada_viewer as renderer
+  viewer.set_renderer(collada_viewer);
 
-  //// init viewer
-  //viewer.init();
+  // init viewer
+  viewer.init();
   
   //bool success = loadObjectsFromFile(collada_viewer, file_to_load_from, file_to_load_from_dae, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon);
   bool success = loadObjectsFromFile(file_to_load_from, file_to_load_from_dae, &cloth, &cp, &objects, sphere_num_lat, sphere_num_lon); //Stopped here
