@@ -10,15 +10,15 @@
 using namespace std;
 
 Cloth::Cloth(double width, double height, int num_width_points,
-             int num_height_points, float thickness) {
-  this->width = width;
-  this->height = height;
-  this->num_width_points = num_width_points;
-  this->num_height_points = num_height_points;
-  this->thickness = thickness;
+	int num_height_points, float thickness) {
+	this->width = width;
+	this->height = height;
+	this->num_width_points = num_width_points;
+	this->num_height_points = num_height_points;
+	this->thickness = thickness;
 
-  buildGrid();
-  buildClothMesh();
+	buildGrid();
+	buildClothMesh();
 }
 
 Cloth::~Cloth() {
@@ -57,29 +57,38 @@ void Cloth::buildGrid() {
 
 			Vector3D pos = Vector3D(x * width / num_width_points, y * height / num_height_points + 1, z);
 			PointMass newGuy = PointMass(pos, false);
+			newGuy.LeftMost = false;
+			newGuy.RightMost = false;
 			point_masses.push_back(newGuy);
-
+			
 		}
 	}
 
 
 	//within pinned? Always pinned for now
 
-
-
-	for (int j = 0; j < point_masses.size(); j++) {
-		PointMass pm = point_masses.at(j);
-		for (int i = 0; i < point_masses.size(); i++) {
-
-			if (j % num_width_points == 0 && i % num_height_points == 0 || (j + 1) % num_width_points == 0 && (i + 1) % num_height_points
-				|| j % num_width_points == 0 && (i + 1) % num_height_points || i % num_height_points == 0 && (j + 1) % num_width_points == 0) {
-				point_masses.at(j).pinned = true;
+	for (int x = 0; x < num_width_points; x++) {
+		for (int y = 0; y < num_height_points; y++) {
+			if (x == 0 && y == 0) {
+				//bottom left
+				point_masses.at(num_width_points * y + x).pinned = true;
+				point_masses.at(num_width_points * y + x).LeftMost = true;
 			}
-
-
-			/*if ((pm.position.x * num_width_points / width) == pinned.at(i).at(0) && (pm.position.y * num_height_points / height) == pinned.at(i).at(1)) {
-				point_masses.at(j).pinned = true;
-			}*/
+			else if (x == (num_width_points - 1) && y == 0) {
+				//top left
+				point_masses.at(num_width_points * y + x).pinned = true;
+				point_masses.at(num_width_points * y + x).LeftMost = true;
+			}
+			else if (x == (num_width_points - 1) && y == (num_height_points - 1)) {
+				//top right
+				point_masses.at(num_width_points * y + x).pinned = true;
+				point_masses.at(num_width_points * y + x).RightMost = true;
+			}
+			else if (x == 0 && y == (num_height_points - 1)) {
+				//bottom right
+				point_masses.at(num_width_points * y + x).pinned = true;
+				point_masses.at(num_width_points * y + x).RightMost = true;
+			}
 		}
 	}
 
@@ -158,7 +167,6 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 		point_masses.at(pm).forces = Vector3D(0, 0, 0);
 	}
 
-
 	// TODO (Part 2): Compute total force acting on each point mass.
 
 	//apply external force to every point mass
@@ -179,7 +187,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 	//apply spring correction forces
 	for (int sp = 0; sp < springs.size(); sp++) {
 		Vector3D vect = (springs.at(sp).pm_a->position - springs.at(sp).pm_b->position);
-		
+
 		double norm = vect.norm();
 		double l = springs.at(sp).rest_length;
 		double ks = cp->ks;
@@ -204,53 +212,186 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 			(springs.at(sp).pm_b)->forces = f2;
 		}
 
-		
+
 	}
 	//Ideas: check accelerations
 	//
-	
+
+	// TODO (Part 2): Use Verlet integration to compute new point mass positions
 	// TODO (Part 2): Use Verlet integration to compute new point mass positions
 	for (int pm = 0; pm < point_masses.size(); pm++) {
-		
+
+
 		if (point_masses.at(pm).pinned) {
+			if (rotationChanges < 6000) {
 
+				Vector3D gravity = external_accelerations.at(0);
+				//WIND SPEED 10000000
+				rotationChanges++;
+				Vector3D n, s, e, w;
+				n = Vector3D(0, 0, -0.0001);
+				e = Vector3D(0.0001, 0, 0);
+				s = Vector3D(0, 0, 0.0001);
+				w = Vector3D(-0.0001, 0, 0);
 
-			//WIND SPEED 10000000
-			point_masses.at(pm).position = point_masses.at(pm).position + external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm();
-			continue;
+				if (dot(lastDir, gravity) != 0 || lastDir.y == -9.8) {
+
+					point_masses.at(pm).position = point_masses.at(pm).position + external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm();
+					continue;
+				}
+				else {
+
+					//NORTH
+					if (lastDir.z == -9.8) {
+						//W
+						if (gravity.x == -9.8) {
+							if (point_masses.at(pm).RightMost) {
+								
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + w + 5 * n;
+								continue;
+							}
+							else if (point_masses.at(pm).LeftMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * e;
+								continue;
+							}
+						}
+						//E
+						else if (gravity.x == 9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * w;
+								continue;
+							}
+							else
+								if (point_masses.at(pm).LeftMost) {
+									point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + e + 5 * n;
+									continue;
+								}
+						}
+					}
+					//EAST
+					else if (lastDir.x == 9.8) {
+						//N
+						if (gravity.z == -9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * e + n;
+								continue;
+							}
+							else if (point_masses.at(pm).LeftMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * s;
+								continue;
+							}
+						}
+						//S
+						else if (gravity.z == 9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * w + s;
+								continue;
+							}
+							else
+								if (point_masses.at(pm).LeftMost) {
+									point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * s;
+									continue;
+								}
+						}
+					}
+					//SOUTH
+					else if (lastDir.z == 9.8) {
+						//E
+						if (gravity.x == 9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + e + 5 * s;
+								continue;
+							}
+							else if (point_masses.at(pm).LeftMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * w;
+								continue;
+							}
+						}
+						//W
+						else if (gravity.x == -9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * e;
+								continue;
+							}
+							else
+								if (point_masses.at(pm).LeftMost) {
+									point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + w + 5 * s;
+									continue;
+								}
+						}
+					}
+					//WEST
+					else if (lastDir.x == -9.8) {
+						//N
+						if (gravity.z == -9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * e;
+								continue;
+							}
+							else
+								if (point_masses.at(pm).LeftMost) {
+									point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * n;
+									continue;
+								}
+
+							//S
+						}
+						else if (gravity.z == 9.8) {
+							if (point_masses.at(pm).RightMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * s;
+								continue;
+							}
+							else if (point_masses.at(pm).LeftMost) {
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * e;
+								continue;
+							}
+						}
+					}
+					
+				}
+			}
+			else {
+				point_masses.at(pm).position = point_masses.at(pm).position + external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm();
+				continue;
+			}
 		}
+		else {
 
-		Vector3D newPos = point_masses[pm].position + (1.0 - (cp->damping / 100.0)) *
-			(point_masses[pm].position - point_masses[pm].last_position)
-			+ (external_accelerations.at(0) + (point_masses[pm].forces / mass)) * pow(delta_t, 2);
-
-		for (int i = 1; i < external_accelerations.size(); i++) {
-			newPos += point_masses[pm].position + (1.0 - (cp->damping / 100.0)) *
+			Vector3D newPos = point_masses[pm].position + (1.0 - (cp->damping / 100.0)) *
 				(point_masses[pm].position - point_masses[pm].last_position)
-				+ (external_accelerations.at(i) + (point_masses[pm].forces / mass)) * pow(delta_t, 2);
+				+ (external_accelerations.at(0) + (point_masses[pm].forces / mass)) * pow(delta_t, 2);
+
+
+			for (int i = 1; i < external_accelerations.size(); i++) {
+				newPos += point_masses[pm].position + (1.0 - (cp->damping / 100.0)) *
+					(point_masses[pm].position - point_masses[pm].last_position)
+					+ (external_accelerations.at(i) + (point_masses[pm].forces / mass)) * pow(delta_t, 2);
+			}
+
+
+			Vector3D oldPos = point_masses[pm].position;
+			point_masses.at(pm).last_position = oldPos;
+
+			point_masses.at(pm).position = newPos;
+
+
 		}
-		Vector3D oldPos = point_masses[pm].position;
-		point_masses.at(pm).last_position = oldPos;
-
-		point_masses.at(pm).position = newPos;
-
-
 	}
 
 
 
 	// TODO (Part 3): Handle collisions with other primitives.
-	for (int pm = 0; pm < point_masses.size(); pm++) {
+	/*for (int pm = 0; pm < point_masses.size(); pm++) {
 		for (int c = 0; c < collision_objects->size(); c++) {
 			collision_objects->at(c)->collide(point_masses.at(pm));
 		}
-	}
+	}*/
 
 
 
 	// TODO (Part 2): Constrain the changes to be such that the spring does not change
 	// in length more than 10% per timestep [Provot 1995].
-	for (int sp = 0; sp < springs.size(); sp++) {
+	/*for (int sp = 0; sp < springs.size(); sp++) {
 
 		Vector3D direction = (*springs.at(sp).pm_a).position - (*springs[sp].pm_b).position;
 		direction = direction.unit();
@@ -275,7 +416,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 			at = distance3D((*springs.at(sp).pm_a).position.x, (*springs.at(sp).pm_a).position.y, (*springs.at(sp).pm_a).position.z,
 				(*springs.at(sp).pm_b).position.x, (*springs.at(sp).pm_b).position.y, (*springs.at(sp).pm_b).position.z);
 
-	}
+	}*/
 
 }
 
@@ -554,3 +695,4 @@ void Cloth::buildClothMesh() {
   clothMesh->triangles = triangles;
   this->clothMesh = clothMesh;
 }
+

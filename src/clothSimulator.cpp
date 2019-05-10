@@ -289,7 +289,13 @@ void ClothSimulator::drawContents() {
 		shader.setUniform("u_color", color, false);
 		shader.setUniform("u_cam_pos", Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), false);
 		shader.setUniform("u_light_pos", Vector3f(0.5, 2, 2), false);
-		shader.setUniform("u_light_intensity", Vector3f(3, 3, 3), false);
+
+
+
+
+		//lightIntensity += Vector3f(5, 5, 5);
+
+		shader.setUniform("u_light_intensity", lightIntensity, false);
 		shader.setUniform("u_texture_1_size", Vector2f(m_gl_texture_1_size.x, m_gl_texture_1_size.y), false);
 		shader.setUniform("u_texture_2_size", Vector2f(m_gl_texture_2_size.x, m_gl_texture_2_size.y), false);
 		shader.setUniform("u_texture_3_size", Vector2f(m_gl_texture_3_size.x, m_gl_texture_3_size.y), false);
@@ -620,19 +626,31 @@ bool ClothSimulator::keyCallbackEvent(int key, int scancode, int action,
 		//FORCE DIRECTION (Change Key)
 		case 'w':
 		case 'W':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(-9.8, 0, 0);
+			cloth->rotationChanges = 0;
 			break;
 		case 's':
 		case 'S':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(0, 0, 9.8);
+			cloth->rotationChanges = 0;
 			break;
 		case 'e':
 		case 'E':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(9.8, 0, 0);
+			cloth->rotationChanges = 0;
 			break;
 		case 'm':
 		case 'M':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(0, 0, -9.8);
+			cloth->rotationChanges = 0;
 			break;
 
 			break;
