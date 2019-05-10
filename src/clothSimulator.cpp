@@ -618,19 +618,31 @@ bool ClothSimulator::keyCallbackEvent(int key, int scancode, int action,
 		//FORCE DIRECTION (Change Key)
 		case 'w':
 		case 'W':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(-9.8, 0, 0);
+			cloth->rotationChanges = 0;
 			break;
 		case 's':
 		case 'S':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(0, 0, 9.8);
+			cloth->rotationChanges = 0;
 			break;
 		case 'e':
 		case 'E':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(9.8, 0, 0);
+			cloth->rotationChanges = 0;
 			break;
 		case 'm':
 		case 'M':
+			lastDir = gravity;
+			cloth->lastDir = lastDir;
 			gravity = Vector3D(0, 0, -9.8);
+			cloth->rotationChanges = 0;
 			break;
 
 			break;

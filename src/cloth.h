@@ -72,14 +72,17 @@ struct Cloth {
   int num_height_points;
   double thickness;
   int windSpeed = 1000000;
+  int rotationChanges = 20000;
   e_orientation orientation;
 
   // Cloth components
+  Vector3D lastDir = Vector3D(0, -9.8, 0);
   vector<PointMass> point_masses;
   vector<PointMass> wind_masses;
   vector<vector<int>> pinned;
   vector<Spring> springs;
   ClothMesh *clothMesh;
+  PointMass *centerMass;
 
   // Spatial hashing
   unordered_map<float, vector<PointMass *> *> map;

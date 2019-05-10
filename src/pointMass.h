@@ -25,6 +25,8 @@ struct PointMass {
   Vector3D start_position;
 
   // dynamic values
+  bool LeftMost;
+  bool RightMost;
   Vector3D position;
   Vector3D last_position;
   Vector3D forces;
