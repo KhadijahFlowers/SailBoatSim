@@ -306,8 +306,8 @@ void ClothSimulator::drawContents() {
 		shader.setUniform("u_texture_3", 3, false);
 		shader.setUniform("u_texture_4", 4, false);
 
-		shader.setUniform("u_normal_scaling", m_normal_scaling, false);
-		shader.setUniform("u_height_scaling", m_height_scaling, false);
+		shader.setUniform("u_normal_scaling", 10, false);
+		shader.setUniform("u_height_scaling", 10, false);
 
 		shader.setUniform("u_texture_cubemap", 5, false);
 		drawPhong(shader);
