@@ -338,7 +338,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 						}
 						else if (gravity.z == 9.8) {
 							if (point_masses.at(pm).RightMost) {
-								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + s + 5 * w;
+								point_masses.at(pm).position = point_masses.at(pm).position + (external_accelerations.at(0) / windSpeed * external_accelerations.at(0).norm()) + 5 * s;
 								continue;
 							}
 							else if (point_masses.at(pm).LeftMost) {
