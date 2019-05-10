@@ -80,7 +80,14 @@ void createGLContexts() {
   }
   glGetError(); // pull and ignore unhandled errors like GL_INVALID_ENUM
 
-  glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
+
+  //BACKGROUND COLOR
+  glClearColor(0, 0, 1.0f, 1.0f);
+
+
+
+
+
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
