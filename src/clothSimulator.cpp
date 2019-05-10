@@ -653,6 +653,15 @@ bool ClothSimulator::keyCallbackEvent(int key, int scancode, int action,
 			cloth->rotationChanges = 0;
 			break;
 
+		case 'q':
+		case 'Q':
+			lightIntensity *= .05;
+			break;
+		case 'a':
+		case 'A':
+			lightIntensity /= .05;
+			break;
+
 			break;
 
 		// Wind Speed
@@ -927,10 +936,12 @@ void ClothSimulator::initGUI(Screen *screen) {
 
 	  TextBox *percentage = new TextBox(panel);
 	  percentage->setFixedWidth(75);
-	  glClearColor(0.25f, 0.25f, 0.1f, 1.0f);
+	  //lightIntensity += Vector3f(5, 5, 5);
+	  //glClearColor(0.25f, 0.25f, 0.1f, 1.0f);
 	  percentage->setValue(to_string(cp->damping));
 	  percentage->setUnits("%");
 	  percentage->setFontSize(14);
+	  //lightIntensity *= .1;
 
 	  slider->setCallback([percentage](float value) {
 		  percentage->setValue(std::to_string(value));
