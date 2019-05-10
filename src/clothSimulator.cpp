@@ -681,7 +681,7 @@ void ClothSimulator::initGUI(Screen *screen) {
 
   // Spring types
 
-  new Label(window, "Spring types", "sans-bold");
+  /*new Label(window, "Spring types", "sans-bold");
 
   {
     Button *b = new Button(window, "structural");
@@ -704,7 +704,7 @@ void ClothSimulator::initGUI(Screen *screen) {
     b->setFontSize(14);
     b->setChangeCallback(
         [this](bool state) { cp->enable_bending_constraints = state; });
-  }
+  }*/
 
   // Mass-spring parameters
 
@@ -894,6 +894,33 @@ void ClothSimulator::initGUI(Screen *screen) {
 	  fb->setUnits("m/s^2");
 	  fb->setSpinnable(true);
 	  fb->setCallback([this](float value) { wind.z = value; });
+  }
+
+  new Label(window, "Sunlight", "sans-bold");
+
+  {
+	  Widget *panel = new Widget(window);
+	  panel->setLayout(
+		  new BoxLayout(Orientation::Horizontal, Alignment::Middle, 0, 5));
+
+	  Slider *slider = new Slider(panel);
+	  slider->setValue(cp->damping);
+	  slider->setFixedWidth(105);
+
+	  TextBox *percentage = new TextBox(panel);
+	  percentage->setFixedWidth(75);
+	  glClearColor(0.25f, 0.25f, 0.1f, 1.0f);
+	  percentage->setValue(to_string(cp->damping));
+	  percentage->setUnits("%");
+	  percentage->setFontSize(14);
+
+	  slider->setCallback([percentage](float value) {
+		  percentage->setValue(std::to_string(value));
+	  });
+	  slider->setFinalCallback([&](float value) {
+		  cp->damping = (double)value;
+		  // cout << "Final slider value: " << (int)(value * 100) << endl;
+	  });
   }
 
 
