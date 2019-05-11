@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+
 <style>
   body {
     padding: 100px;
@@ -21,7 +22,7 @@
 </head>
 
 
-<body>
+<body bgcolor="coral">
     <a href="index.html">Back home</a>
 
     <h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2019</h1>
@@ -39,17 +40,70 @@
 
               </p>
               <p>
-                  A paragraph summary of the entire project.
+                  In our project, we constructed an environment simulator where the user is able to manipulate wind direction, wind speed, and light intensity. 
               </p>
-              <h2 align="left">Technical approach</h2>
+              <h2 align="center">Technical Approach</h2>
               <p>
-                  Coming Soon
+                <b>Shaders/Light Intensity</b>
+                  We wrote a .frag and .vert using GLSL to craete a shader that simulated land, and we applied it to the environment and gave the kite in the simulation and smooth looking surface.
               </p>
+
               <p>
-                  A 1-2 page summary of your technical approach, techniques used, algorithms implemented, etc. (use references to papers or other resources for further detail). Highlight how your approach varied from the references used (did you implement a subset, or did you change or enhance anything), the unique decisions you made and why.
-                  A description of problems encountered and how you tackled them.
-                  A description of lessons learned.
+                <b>GUI Commands</b>
+                  In order to allow the user to manipulate the scene, we added several GUI commands to the simulation.
+
+                  <p><b>(p) - Play the simulation</b></p>
+                  <p><b>(m/s/e/w) - Change Wind Direction</b></p>
+                  <p><b>(+/-) - Change Wind Speed</b></p>
+                  <p><b>(l/k) - Increase and Decrease light intensity</b></p>
               </p>
+
+              <p>
+                <b>Cloth (Point Masses and Springs)</b>
+                  In order to model the kite and simulate wind acting on it appropriately, we constructed it using point masses, which can be described as areas of mass, whose positions change based on the forces we apply to them. Using Verlet Integration, and given a force, we computed the next position of the point masses using the following formula:
+
+                    <div align="left">
+                      <table style="width=100%">
+                        <tr>
+                          <td align="left">
+                            <img src="Verlet.png" width="480px" />
+                              <figcaption align="left"><b>Verlet Integration Formula for Point Mass Position Change</b>
+                              </figcaption>
+                          </tr>
+                      </table>
+                    </div>
+
+                  In addition to having point masses that we'd manipulate using force, we also included a spring system that would connect the point masses together in such a way that their movement and new positions would be limited by the connections they had with each other, simulating the behavior or a real, 3D object. We have three types of springs: Structural, Shearing, and Bending. Each point mass has a small number of each type of spring, connecting itself to another, relatively close point mass, simulating local resistance and restrained behavior. On a large scale, these localized areas of resistance and restraint work together to completely simulate the overall movement of a cloth-like object.
+
+
+                  The springs behave as follows:
+
+                  The structural springs keep nearby point masses bound relatively close together. Bending springs allow the point masses to be maleable under pressure with respect to the other point mass they are connected to. Finally, shearing springs to provide a resistant force to shearing transformations regarding the connected point masses.
+              </p>
+
+              <p>
+                <b>Wind Physics</b>
+
+                  By giving a fixed mass to all point masses used to simulate the cloth, controlling wind physics was a matter of applying variations of wind force in the Verlet Integration Formula. With the exception of the <b>*</b>pinned point masses, all point masses were subjected to a wind force as opposed to natural gravity.
+
+                  <p>
+                    <b>Problems:</b>
+                     <p>Our initial desire for the project was to take the simulated cloth and attach it to a rigidbody that we;d model as a boat. Then, the wind would act on both the cloth and the boat, and the simulation would model the reaction of the boat to the wind, and not just the wind on the cloth itself.
+
+                     We made various attempts to get the boat into the scene. This included a conversion of a rigidbody into a .json file, the loading of a .dae file into the scene, and manipulations of models already loaded into the scene to resemble a boat. However, none of these attempts panned out into anything that was remotely usable, and we were left with the wind acting on the pinned cloth, a shader that we converted from resembling water to resembling land, and a light source with variable intensity. 
+                   </p>
+                  </p>
+
+                  <p><b>Lessons Learned:</b>
+                    <p>Despite not being able to realize the full vision we had for our project, our team learned a lot about the inner workings of GUI's, .json and .dae files, how to load a file into a scene, and how to build and apply shaders. We also learned that, in order to bring our vision into fruition in the future, we need to prioritize the most daunting tasks first. We made the mistake of saving the most challenging for last and it ended up being a mistake that cost us our initial vision for the project.</p>
+                  </p>
+
+
+              </p>
+                  <b>*Pinned :</b> If we play the simulation, we notice that there exist four points on the kite that are less affected by the force. This was done purposely to create a kite, and the bending behavior of the kite is a demonstration of all of the point mass springs working together to maintain the general shape of the kite.
+              </p>
+
+
               <h2 align="left">Results</h2>
               <p>
                   Coming Soon
