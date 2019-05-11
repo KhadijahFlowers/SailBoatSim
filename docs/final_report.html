@@ -27,161 +27,191 @@
 
     <h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2019</h1>
     <h1 align="middle">Final Project: Environment Simulator</h1>
+    <div align="center">
+        <table style="width=100%">
+            <tr>
+                <td align="center">
+                    <img src="images/back_ground.PNG" width="450px" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    
     <h2 align="middle">Final Report</h2>
     <h3 align="middle"> Khadijah Flowers, Heesoo Jang, Anais Miller</h3>
 
 
     <br /><br />
 
-          <div>
+    <div>
 
-              <h2 align="center">Abstract</h2>
-              <p>
+        <h2 align="center">Abstract</h2>
+        <p>
 
-              </p>
-              <p>
-                  In our project, we constructed an environment simulator where the user is able to manipulate wind direction, wind speed, and light intensity. 
-              </p>
+        </p>
+        <p>
+            In our project, we constructed an environment simulator where the user is able to manipulate wind direction, wind speed, and light intensity.
+        </p>
 
 
 
-              <h2 align="center">Technical Approach</h2>
-              <p>
-                <b>Shaders/Light Intensity</b>
-                  We wrote a .frag and .vert using GLSL to craete a shader that simulated land, and we applied it to the environment and gave the kite in the simulation and smooth looking surface.
-              </p>
+        <h2 align="center">Technical Approach</h2>
+        <p>
+            <b>Shaders/Light Intensity</b>
+            We wrote a .frag and .vert using GLSL to create a shader that simulated land and applied it to the environment. We added a kite to the simulation and gave it a smooth looking surface.
+        </p>
 
-              <p>
-                <b>GUI Commands</b>
-                  In order to allow the user to manipulate the scene, we added several GUI commands to the simulation.
+        <p>
+            <b>GUI Commands</b>
+            In order to allow the user to manipulate the scene, we added several GUI commands to the simulation.
 
-                  <p><b>(p) - Play the simulation</b></p>
-                  <p><b>(m/s/e/w) - Change Wind Direction</b></p>
-                  <p><b>(+/-) - Change Wind Speed</b></p>
-                  <p><b>(l/k) - Increase and Decrease light intensity</b></p>
-              </p>
+        </p>
 
-              <p>
-                <b>Cloth (Point Masses and Springs)</b>
-                  In order to model the kite and simulate wind acting on it appropriately, we constructed it using point masses, which can be described as areas of mass, whose positions change based on the forces we apply to them. Using Verlet Integration, and given a force, we computed the next position of the point masses using the following formula:
+        <p><b>(p) - Play the simulation</b></p>
+        <p><b>(m/s/e/w) - Change Wind Direction</b></p>
+        <p><b>(+/-) - Change Wind Speed</b></p>
+        <p><b>(l/k) - Increase and Decrease light intensity</b></p>
+        </p>
 
-                    <div align="left">
-                      <table style="width=100%">
-                        <tr>
-                          <td align="left">
+        <p>
+            <b>Cloth (Point Masses and Springs)</b>
+            In order to model the kite and simulate wind acting on it appropriately, we constructed it using point masses, which can be described as areas of mass, whose positions change based on the forces we apply to them. Using Verlet Integration, and given a force, we computed the next position of the point masses using the following formula:
+
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
                             <img src="Verlet.png" width="480px" />
-                              <figcaption align="left"><b>Verlet Integration Formula for Point Mass Position Change</b>
-                              </figcaption>
-                          </tr>
-                      </table>
-                    </div>
+                            <figcaption align="left">
+                                <b>Verlet Integration Formula for Point Mass Position Change</b>
+                            </figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-                  In addition to having point masses that we'd manipulate using force, we also included a spring system that would connect the point masses together in such a way that their movement and new positions would be limited by the connections they had with each other, simulating the behavior or a real, 3D object. We have three types of springs: Structural, Shearing, and Bending. Each point mass has a small number of each type of spring, connecting itself to another, relatively close point mass, simulating local resistance and restrained behavior. On a large scale, these localized areas of resistance and restraint work together to completely simulate the overall movement of a cloth-like object.
-
-
-                  The springs behave as follows:
-
-                  The structural springs keep nearby point masses bound relatively close together. Bending springs allow the point masses to be maleable under pressure with respect to the other point mass they are connected to. Finally, shearing springs to provide a resistant force to shearing transformations regarding the connected point masses.
-              </p>
-
-              <p>
-                <b>Wind Physics</b>
-
-                  By giving a fixed mass to all point masses used to simulate the cloth, controlling wind physics was a matter of applying variations of wind force in the Verlet Integration Formula. With the exception of the <b>*</b>pinned point masses, all point masses were subjected to a wind force as opposed to natural gravity.
-
-                  <p>
-                    <b>Problems:</b>
-                     <p>Our initial desire for the project was to take the simulated cloth and attach it to a rigidbody that we;d model as a boat. Then, the wind would act on both the cloth and the boat, and the simulation would model the reaction of the boat to the wind, and not just the wind on the cloth itself.
-
-                     We made various attempts to get the boat into the scene. This included a conversion of a rigidbody into a .json file, the loading of a .dae file into the scene, and manipulations of models already loaded into the scene to resemble a boat. However, none of these attempts panned out into anything that was remotely usable, and we were left with the wind acting on the pinned cloth, a shader that we converted from resembling water to resembling land, and a light source with variable intensity. 
-                   </p>
-                  </p>
-
-                  <p><b>Lessons Learned:</b>
-                    <p>Despite not being able to realize the full vision we had for our project, our team learned a lot about the inner workings of GUI's, .json and .dae files, how to load a file into a scene, and how to build and apply shaders. We also learned that, in order to bring our vision into fruition in the future, we need to prioritize the most daunting tasks first. We made the mistake of saving the most challenging for last and it ended up being a mistake that cost us our initial vision for the project.</p>
-                  </p>
+            In addition to having point masses that we'd manipulate using force, we also included a spring system that would connect the point masses together in such a way that their movement and new positions would be limited by the connections they had with each other, simulating the behavior or a real, 3D object. We have three types of springs: Structural, Shearing, and Bending. Each point mass has a small number of each type of spring, connecting itself to another, relatively close point mass, simulating local resistance and restrained behavior. On a large scale, these localized areas of resistance and restraint work together to completely simulate the overall movement of a cloth-like object.
 
 
-              </p>
-                  <b>*Pinned :</b> If we play the simulation, we notice that there exist four points on the kite that are less affected by the force. This was done purposely to create a kite, and the bending behavior of the kite is a demonstration of all of the point mass springs working together to maintain the general shape of the kite.
-              </p>
+            The springs behave as follows:
+
+            The structural springs keep nearby point masses bound relatively close together. Bending springs allow the point masses to be maleable under pressure with respect to the other point mass they are connected to. Finally, shearing springs to provide a resistant force to shearing transformations regarding the connected point masses.
+        </p>
+
+        <p>
+            <b>Wind Physics</b>
+
+            By giving a fixed mass to all point masses used to simulate the cloth, controlling wind physics was a matter of applying variations of wind force in the Verlet Integration Formula. With the exception of the <b>*</b>pinned point masses, all point masses were subjected to a wind force as opposed to natural gravity.
+
+        </p>
+
+        <p>
+            <b>Problems:</b>
+        </p>
+        <p>
+            Our initial desire for the project was to take the simulated cloth and attach it to a rigidbody that we'd model as a boat. Then, the wind would act on both the cloth and the boat, and the simulation would model the reaction of the boat to the wind, and not just the wind on the cloth itself.
+
+            We made various attempts to get the boat into the scene. This included a conversion of a rigidbody into a .json file, the loading of a .dae file into the scene, and manipulations of models already loaded into the scene to resemble a boat. However, none of these attempts panned out into anything that was remotely usable, and we were left with the wind acting on the pinned cloth, a shader that we converted from resembling water to resembling land, and a light source with variable intensity.
+        </p>
+        </p>
+
+        <p>
+            <b>Lessons Learned:</b>
+        </p>
+        <p>Despite not being able to realize the full vision we had for our project, our team learned a lot about the inner workings of GUI's, .json and .dae files, how to load a file into a scene, and how to build and apply shaders. We also learned that, in order to bring our vision into fruition in the future, we need to prioritize the most daunting tasks first. We made the mistake of saving the most challenging for last and it ended up being a mistake that cost us our initial vision for the project.</p>
+        </p>
 
 
-              <h2 align="center">Results</h2>
-              <p>
-                  The first table illustrates the spectrum of how sunny and bright a user can make the environment. If they want the scene to  feel
-                  more like night time, then they would opt for something like Image 1-0, while if they want it to be noon and full brightness,
-                  then they might want something like Image 1-2.
-              </p>
-              <div align="center">
-                  <table style="width=100%">
-                      <tr>
-                          <td align="center">
-                              <img src="images/dark-1.png" width="380px" />
-                              <figcaption align="middle">Image 1-0: How dark you can make the environment</figcaption>
-                          </td>
-                          <td align="center">
-                              <img src="images/dark-2.png" width="380px" />
-                              <figcaption align="middle">Image 1-1: The default brightness of the environment</figcaption>
-                          </td>
-                          <td align="center">
-                              <img src="images/dark-3.png" width="380px" />
-                              <figcaption align="middle">Image 1-2: A very sunny environment</figcaption>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              <p>
-                  This next table demonstrates the kite's movement against the wind. Wind can come from any and all directions. It can also come at varying intensities.
-              </p>
-              <div align="center">
-                  <table style="width=100%">
-                      <tr>
-                          <td align="center">
-                              <img src="images/wind.gif" width="450px" />
-                              <figcaption align="middle">Gif 2-0: Wind movement direction- the kite is going West, then is changed to go North because of the wind direction</figcaption>
-                          </td>
-                      
-                      
-                          <td align="center">
-                              <img src="images/wind2.gif" width="450px" />
-                              <figcaption align="middle">Gif 2-1: Wind movement acceleration- the wind can increase in speed, causing the kite to move faster, or decrease in speed, causing the kite to go slower</figcaption>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              <h5 align="left">Video</h5>
-              <p> Video <a href="" target="_blank">link</a></p>
-
-              <h2 align="left">Presentation Slides</h2>
-              <p> Slides <a href="https://docs.google.com/presentation/d/1pScfHdTfCe_DvIQ1h8Vsdgl7tHDRanmbegcO0rS8ZJA/edit#slide=id.p3" target="_blank">link</a></p>
-
-              <h2 align="left">References</h2>
-              <p>
-                <b>Previous projects</b> <br>
-                  <a href="https://cs184.eecs.berkeley.edu/sp19//article/14/assignment-2-meshedit" target="_blank">Project 2</a></p> 
-                  <a href="https://cs184.eecs.berkeley.edu/sp19//article/14/assignment-2-meshedit" target="_blank">Project 4</a></p> <br>
-                <b>Fluid Simulation Resources : </b> <br>
-                  <a href="https://mikeash.com/pyblog/fluid-simulation-for-dummies.html" target="_blank">fluid-simulation-for-dummies</a></p> 
-                  <a href="http://mmacklin.com/pbf_sig_preprint.pdf" target="_blank">Position based fluids</a></p> <br>
-                <b>Cloth Rendering Simulation Resources : </b> <br>
-                  <a href="http://graphics.ucsd.edu/~henrik/papers/practical_microcylinder_appearance_model_for_cloth_rendering.pdf" target="_blank">A Practical Microcylinder Appearance Model for Cloth Rendering</a></p> <br>
-                  <a href="https://www.shadertoy.com/view/MldXWX" target="_blank">Simulation sandbox</a></p>
-                <b>Movement : </b> <br>
-                  <a href="https://viscomp.alexandra.dk/?p=147" target="_blank">Tutorial</a></p> 
+        </p>
+        <b>*Pinned :</b> If we play the simulation, we notice that there exist four points on the kite that are less affected by the force. This was done purposely to create a kite, and the bending behavior of the kite is a demonstration of all of the point mass springs working together to maintain the general shape of the kite.
+        </p>
 
 
-              </p>
-              <h2 align="left">Contributions from each team member</h2>
-              <p>
-                  Anais Miller  - <br>
-                  Khadijah Flowers - <br>
-                  Heesoo Jang - <br>
-              </p>
+        <h2 align="center">Results</h2>
+        <p>
+            The first table illustrates the spectrum of how sunny and bright a user can make the environment. If they want the scene to  feel
+            more like night time, then they would opt for something like Image 1-0, while if they want it to be noon and full brightness,
+            then they might want something like Image 1-2.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="center">
+                        <img src="images/dark-1.png" width="380px" />
+                        <figcaption align="middle">Image 1-0: How dark you can make the environment</figcaption>
+                    </td>
+                    <td align="center">
+                        <img src="images/dark-2.png" width="380px" />
+                        <figcaption align="middle">Image 1-1: The default brightness of the environment</figcaption>
+                    </td>
+                    <td align="center">
+                        <img src="images/dark-3.png" width="380px" />
+                        <figcaption align="middle">Image 1-2: A very sunny environment</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            This next table demonstrates the kite's movement against the wind. Wind can come from any and all directions. It can also come at varying intensities.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="center">
+                        <img src="images/wind.gif" width="450px" />
+                        <figcaption align="middle">Gif 2-0: Wind movement direction- the kite is going West, then is changed to go North because of the wind direction</figcaption>
+                    </td>
+
+
+                    <td align="center">
+                        <img src="images/wind2.gif" width="450px" />
+                        <figcaption align="middle">Gif 2-1: Wind movement acceleration- the wind can increase in speed, causing the kite to move faster, or decrease in speed, causing the kite to go slower</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <h5 align="left">Video</h5>
+        <p> Video <a href="" target="_blank">link</a></p>
+        <video width="470" height="255" poster="images/back_ground_video.PNG" controls=controls>
+            <source src="images/final_project_video.mp4" type="video/mp4" />
+
+            <object data="images/final_project_video.mp4" width="470" height="255">
+                <embed src="images/final_project_video.swf" width="470" height="255" />
+            </object>
+        </video>
+
+
+        <h2 align="left">Presentation Slides</h2>
+        <p> Slides <a href="https://docs.google.com/presentation/d/1pScfHdTfCe_DvIQ1h8Vsdgl7tHDRanmbegcO0rS8ZJA/edit#slide=id.p3" target="_blank">link</a></p>
+
+        <h2 align="left">References</h2>
+        <p>
+            <b>Previous projects</b> <br />
+            <a href="https://cs184.eecs.berkeley.edu/sp19//article/14/assignment-2-meshedit" target="_blank">Project 2</a>
+        </p>
+        <a href="https://cs184.eecs.berkeley.edu/sp19//article/14/assignment-2-meshedit" target="_blank">Project 4</a></p> <br />
+        <b>Fluid Simulation Resources : </b> <br />
+        <a href="https://mikeash.com/pyblog/fluid-simulation-for-dummies.html" target="_blank">fluid-simulation-for-dummies</a></p>
+        <a href="http://mmacklin.com/pbf_sig_preprint.pdf" target="_blank">Position based fluids</a></p> <br />
+        <b>Cloth Rendering Simulation Resources : </b> <br />
+        <a href="http://graphics.ucsd.edu/~henrik/papers/practical_microcylinder_appearance_model_for_cloth_rendering.pdf" target="_blank">A Practical Microcylinder Appearance Model for Cloth Rendering</a></p> <br />
+        <a href="https://www.shadertoy.com/view/MldXWX" target="_blank">Simulation sandbox</a></p>
+        <b>Movement : </b> <br />
+        <a href="https://viscomp.alexandra.dk/?p=147" target="_blank">Tutorial</a></p>
+
+
+        </p>
+        <h2 align="left">Contributions from each team member</h2>
+        <p>
+
+            Khadijah Flowers - write-ups, wind, direction<br />
+            Heesoo Jang - write-ups, wind<br />
+            Anais Miller  - write-ups, video editing, slides, blender boat and integration, water simulation, wind<br />
+        </p>
 
 
 
-          </div>
+    </div>
 
 
 </body>
